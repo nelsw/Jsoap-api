@@ -1,9 +1,16 @@
 import lombok.Data;
 
-@Data
-public class Request {
+import java.util.Map;
 
-	private String proxyHostName;
-	private Integer proxyHostPort;
+@Data
+class Request {
+
+	private String exampleUrl;
+	private String serverUrl;
+	private String actionUrl;
+
+	private Map<String, String> requestParameters;
+
+	private String responseTagName;
 
 }
