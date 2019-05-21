@@ -26,13 +26,13 @@ public class Tests {
 	public void before() {
 		input = new Request();
 		input.setExampleUrl("https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml");
-		input.setServerUrl("https://graphical.weather.gov/xml/SOAP_server/ndfdXMLserver.php");
-		input.setActionUrl("https://graphical.weather.gov/xml/DWMLgen/wsdl/ndfdXML.wsdl#LatLonListZipCode");
+		input.setServerUrl("https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php");
+		input.setActionUrl("https://graphical.weather.gov:443/xml/DWMLgen/wsdl/ndfdXML.wsdl#LatLonListZipCode");
 		Map<String, String> requestParameters = new HashMap<>();
 		requestParameters.put("listZipCodeList", "20910 25414");
 		input.setRequestParameters(requestParameters);
-		input.setResponseTagName("listLatLonOut");
-		input.setHost("graphical.weather.gov");
+		input.setResponseTagName("listlatlonout");
+		input.setHost("graphical.weather.gov:443");
 	}
 
 	@Test

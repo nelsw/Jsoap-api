@@ -6,10 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -28,11 +25,20 @@ public class Handler implements RequestHandler<Request, String> {
 		}
 		Document request = getRequest(input.getExampleUrl());
 		if (request != null) {
-			System.out.println(request);
-			Document response = getResponse(request.toString().getBytes(), input.getServerUrl(), input.getActionUrl(), input.getHost());
+			request.outputSettings().prettyPrint(false);
+			byte[] b = null;
+			try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+				bout.write(request.toString().getBytes());
+				b = bout.toByteArray();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			Document response = getResponse(b, input.getServerUrl(), input.getActionUrl(), input.getHost());
 			if (response != null) {
 				System.out.println(response);
-				return response.selectFirst(input.getResponseTagName()).text();
+				String result = response.selectFirst(input.getResponseTagName()).text();
+				System.out.println(result);
+				return result;
 			}
 		}
 		return null;
@@ -54,25 +60,35 @@ public class Handler implements RequestHandler<Request, String> {
 
 	private Document getResponse(byte[] requestBytes, String serverUrl, String actionUrl, String host) {
 		try {
-			HttpsURLConnection connection = (HttpsURLConnection) new URL(serverUrl).openConnection();
-			connection.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
-			connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19");
+			HttpURLConnection connection = (HttpsURLConnection) new URL(serverUrl).openConnection();
 			connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
-			connection.setRequestProperty("Connection", "Keep-Alive");
+			connection.setRequestProperty("Content-Type", "text/xml;charset=ISO-8859-1");
 			connection.setRequestProperty("Content-Length", String.valueOf(requestBytes.length));
-			connection.setRequestProperty("SOAPAction", actionUrl);
+//			connection.setRequestProperty("SOAPAction", actionUrl);
 			connection.setRequestProperty("Host", host);
+//			connection.setRequestProperty("Connection", "Keep-Alive");
+			connection.setRequestProperty("User-Agent", "Apache-HttpClient/4.1.1 (java 1.5)");
+//			connection.setRequestProperty("Accept", "*/*");
 			connection.setRequestMethod("POST");
-			connection.setConnectTimeout(10_000);
-			connection.setReadTimeout(10_000);
+//			connection.setConnectTimeout(10_000);
+//			connection.setReadTimeout(10_000);
 			connection.setDoOutput(true);
-			connection.setDoInput(true);
 			OutputStream outputStream = connection.getOutputStream();
-			outputStream.write(requestBytes);
-			outputStream.close();
+			DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+			dataOutputStream.write(requestBytes);
+			dataOutputStream.flush();
+			dataOutputStream.close();
+			int responseCode = connection.getResponseCode();
+			if (responseCode != 200) {
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+				String s;
+				while ((s = bufferedReader.readLine()) != null) {
+					System.out.println(s);
+				}
+				bufferedReader.close();
+			}
 			InputStream inputStream = connection.getInputStream();
 			Document responseDocument = Jsoup.parse(inputStream, StandardCharsets.UTF_8.name(), "");
-			System.out.println(responseDocument.toString());
 			inputStream.close();
 			connection.disconnect();
 			return Parser.xmlParser().parseInput(responseDocument.html(), "");
