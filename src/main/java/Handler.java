@@ -1,11 +1,11 @@
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import lombok.Getter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -16,13 +16,8 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Handler implements RequestHandler<Request, String> {
-
-	@Getter(lazy = true)
-	private final Map<String, String> requestProperties = requestProperties();
 
 	private LambdaLogger logger;
 
@@ -33,8 +28,10 @@ public class Handler implements RequestHandler<Request, String> {
 		}
 		Document request = getRequest(input.getExampleUrl());
 		if (request != null) {
-			Document response = getResponse(request.toString().getBytes(), input.getServerUrl(), input.getActionUrl());
+			System.out.println(request);
+			Document response = getResponse(request.toString().getBytes(), input.getServerUrl(), input.getActionUrl(), input.getHost());
 			if (response != null) {
+				System.out.println(response);
 				return response.selectFirst(input.getResponseTagName()).text();
 			}
 		}
@@ -55,13 +52,19 @@ public class Handler implements RequestHandler<Request, String> {
 		}
 	}
 
-	private Document getResponse(byte[] requestBytes, String serverUrl, String actionUrl) {
+	private Document getResponse(byte[] requestBytes, String serverUrl, String actionUrl, String host) {
 		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(serverUrl).openConnection();
-			requestProperties.forEach(connection::setRequestProperty);
+			HttpsURLConnection connection = (HttpsURLConnection) new URL(serverUrl).openConnection();
+			connection.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
+			connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19");
+			connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+			connection.setRequestProperty("Connection", "Keep-Alive");
 			connection.setRequestProperty("Content-Length", String.valueOf(requestBytes.length));
 			connection.setRequestProperty("SOAPAction", actionUrl);
+			connection.setRequestProperty("Host", host);
 			connection.setRequestMethod("POST");
+			connection.setConnectTimeout(10_000);
+			connection.setReadTimeout(10_000);
 			connection.setDoOutput(true);
 			connection.setDoInput(true);
 			OutputStream outputStream = connection.getOutputStream();
@@ -69,22 +72,15 @@ public class Handler implements RequestHandler<Request, String> {
 			outputStream.close();
 			InputStream inputStream = connection.getInputStream();
 			Document responseDocument = Jsoup.parse(inputStream, StandardCharsets.UTF_8.name(), "");
+			System.out.println(responseDocument.toString());
 			inputStream.close();
 			connection.disconnect();
 			return Parser.xmlParser().parseInput(responseDocument.html(), "");
 		} catch (Exception e) {
 			logger.log(String.format("Exception occurred while getting response document for %s", actionUrl));
+			e.printStackTrace();
 			return null;
 		}
-	}
-
-	private Map<String, String> requestProperties() {
-		Map<String, String> map = new HashMap<>();
-		map.put("Content-Type", "text/xml;charset=utf-8");
-		map.put("User-Agent", "Apache-HttClient/4.1.1");
-		map.put("Accept-Encoding", "gzip,deflate");
-		map.put("Connection", "Keep-Alive");
-		return map;
 	}
 
 }

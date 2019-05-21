@@ -13,28 +13,31 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertNotNull;
+
 public class Tests {
 
 	private final Handler handler = new Handler();
 	private final MockLambda context = new MockLambda();
 
-	private Request request;
+	private Request input;
 
 	@Before
 	public void before() {
-		request = new Request();
-		request.setExampleUrl("");
-		request.setServerUrl("");
-		request.setActionUrl("");
+		input = new Request();
+		input.setExampleUrl("https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml");
+		input.setServerUrl("https://graphical.weather.gov/xml/SOAP_server/ndfdXMLserver.php");
+		input.setActionUrl("https://graphical.weather.gov/xml/DWMLgen/wsdl/ndfdXML.wsdl#LatLonListZipCode");
 		Map<String, String> requestParameters = new HashMap<>();
 		requestParameters.put("listZipCodeList", "20910 25414");
-		request.setRequestParameters(requestParameters);
-		request.setResponseTagName("lizZipCodeList");
+		input.setRequestParameters(requestParameters);
+		input.setResponseTagName("listLatLonOut");
+		input.setHost("graphical.weather.gov");
 	}
 
 	@Test
 	public void foo() throws Exception {
-		File tempFile = File.createTempFile("request", ".xml");
+		File tempFile = File.createTempFile("input", ".xml");
 		tempFile.deleteOnExit();
 
 		URL url = new URL("https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml");
@@ -56,7 +59,7 @@ public class Tests {
 
 	@Test
 	public void validRequest_handRequest_returnValidJson() {
-
+		assertNotNull(handler.handleRequest(input, context));
 	}
 
 	@Test
