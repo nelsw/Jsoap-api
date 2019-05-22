@@ -1,8 +1,6 @@
 [![Build Status][ci-img]][ci]
 [![Coverage Status][coveralls-img]][coveralls]
 # LambdaSOAP
-Put SOAP to REST with AWS Lambda for Java 8
-
 **LambdaSOAP** is a Java library exemplifying a serverless application facilitating [REST][rest]-ful [SOAP][soap] messaging.
 
 Source can be built into a java archive and used as a generic serverless [AWS Lambda function][aws-lambda].
