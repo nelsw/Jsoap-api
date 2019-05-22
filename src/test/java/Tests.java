@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 public class Tests {
 
 	private final Handler handler = new Handler();
-	private final MockLambda context = new MockLambda();
+	private MockLambda context;
 
 	private Request input;
 
@@ -26,35 +26,16 @@ public class Tests {
 	public void before() {
 		input = new Request();
 		input.setExampleUrl("https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml");
-		input.setServerUrl("https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php");
+		input.setEndpointUrl("https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php");
 		input.setActionUrl("https://graphical.weather.gov:443/xml/DWMLgen/wsdl/ndfdXML.wsdl#LatLonListZipCode");
 		Map<String, String> requestParameters = new HashMap<>();
 		requestParameters.put("listZipCodeList", "20910 25414");
 		input.setRequestParameters(requestParameters);
 		input.setResponseTagName("listlatlonout");
+		input.setEncodedResponseTagName("latlonlist");
+		input.setCharsetName("ISO-8859-1");
 		input.setHost("graphical.weather.gov:443");
-	}
-
-	@Test
-	public void foo() throws Exception {
-		File tempFile = File.createTempFile("input", ".xml");
-		tempFile.deleteOnExit();
-
-		URL url = new URL("https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml");
-
-		ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-
-		FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-
-		fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-
-		Document document = Parser.xmlParser().parseInput(new String(Files.readAllBytes(tempFile.toPath())), "");
-
-		System.out.println(document);
-
-		String value = document.selectFirst("listZipCodeList").text();
-
-		System.out.println(value);
+		context = new MockLambda();
 	}
 
 	@Test
