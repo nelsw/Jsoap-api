@@ -16,6 +16,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.Objects;
 
 public class Handler implements RequestHandler<Request, String> {
@@ -60,7 +61,7 @@ public class Handler implements RequestHandler<Request, String> {
 		if (logger == null) {
 			logger = context.getLogger();
 		}
-		Document request = getRequest(input.getExampleUrl());
+		Document request = getRequest(input.getExampleUrl(), input.getRequestParameters());
 		if (request != null) {
 			Document response = getResponse(
 					request.toString().getBytes(),
@@ -79,26 +80,25 @@ public class Handler implements RequestHandler<Request, String> {
 		return null;
 	}
 
-	private Document getRequest(String requestExampleUrl) {
-		Document document = null;
+	private Document getRequest(String requestExampleUrl, Map<String, String> requestParameters) {
 		try {
 			File file = File.createTempFile(tempFilePrefix, tempFileSuffix);
 			file.deleteOnExit();
 			ReadableByteChannel readableByteChannel = Channels.newChannel(new URL(requestExampleUrl).openStream());
 			FileOutputStream fileOutputStream = new FileOutputStream(file);
 			fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-			document = Parser.xmlParser().parseInput(new String(Files.readAllBytes(file.toPath())), "");
+			Document document = Parser.xmlParser().parseInput(new String(Files.readAllBytes(file.toPath())), "");
 			document.outputSettings().prettyPrint(false);
+			requestParameters.forEach((k, v) -> document.selectFirst(k).text(v));
+			return document;
 		} catch (Exception e) {
 			logger.log(String.format(requestExceptionMsg, requestExampleUrl));
+			return null;
 		}
-		return document;
 	}
 
 	private Document getResponse(byte[] bytes, String endpoint, String host, String charsetName, String agent) {
-		Document document = null;
 		try {
-
 			HttpURLConnection conn = (HttpsURLConnection) new URL(endpoint).openConnection();
 			conn.setRequestProperty(encodingKey, encodingVal);
 			conn.setRequestProperty(contentTypeKey, contentTypeVal + charsetName);
@@ -114,14 +114,14 @@ public class Handler implements RequestHandler<Request, String> {
 			dataOutputStream.close();
 
 			InputStream inputStream = conn.getInputStream();
-			document = Jsoup.parse(inputStream, Charset.forName(charsetName).name(), endpoint);
+			Document document = Jsoup.parse(inputStream, Charset.forName(charsetName).name(), endpoint);
 			inputStream.close();
 			conn.disconnect();
-
+			return document;
 		} catch (Exception e) {
 			logger.log(String.format(responseExceptionMsg, endpoint));
+			return null;
 		}
-		return document;
 	}
 
 }

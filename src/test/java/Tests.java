@@ -1,19 +1,12 @@
 import lambda.MockLambda;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class Tests {
 
@@ -27,7 +20,6 @@ public class Tests {
 		input = new Request();
 		input.setExampleUrl("https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml");
 		input.setEndpointUrl("https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php");
-		input.setActionUrl("https://graphical.weather.gov:443/xml/DWMLgen/wsdl/ndfdXML.wsdl#LatLonListZipCode");
 		Map<String, String> requestParameters = new HashMap<>();
 		requestParameters.put("listZipCodeList", "20910 25414");
 		input.setRequestParameters(requestParameters);
@@ -44,13 +36,20 @@ public class Tests {
 	}
 
 	@Test
-	public void invalidExampleUrl_handleRequest_returnNull() {
-
+	public void invalidEndpointUrl_handleRequest_returnNull() {
+		input.setEndpointUrl(null);
+		assertNull(handler.handleRequest(input, context));
 	}
 
 	@Test
-	public void invalidServerUrlOrActionUrl_handleRequest_returnNull() {
+	public void invalidActionUrl_handleRequest_returnNull() {
+		input.getRequestParameters().put("", "");
+		assertNull(handler.handleRequest(input, context));
+	}
 
+	@Test(expected = NullPointerException.class)
+	public void nullRequest_handleRequest_throwsException() {
+		handler.handleRequest(null, context);
 	}
 
 }

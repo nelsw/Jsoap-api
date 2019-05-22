@@ -10,7 +10,6 @@ class Request {
 
 	String exampleUrl;
 	String endpointUrl;
-	String actionUrl;
 	String host;
 	String charsetName;
 	String userAgent;
