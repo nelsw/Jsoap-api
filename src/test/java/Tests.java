@@ -20,9 +20,6 @@ public class Tests {
 		input = new Request();
 		input.setExampleUrl("https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml");
 		input.setEndpointUrl("https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php");
-		Map<String, String> requestParameters = new HashMap<>();
-		requestParameters.put("listZipCodeList", "20910 25414");
-		input.setRequestParameters(requestParameters);
 		input.setResponseTagName("listlatlonout");
 		input.setEncodedResponseTagName("latlonlist");
 		input.setCharsetName("ISO-8859-1");
@@ -31,7 +28,7 @@ public class Tests {
 	}
 
 	@Test
-	public void validRequest_handRequest_returnValidJson() {
+	public void simpleValidRequest_handleRequest_returnValidResult() {
 		assertNotNull(handler.handleRequest(input, context));
 	}
 
@@ -42,14 +39,22 @@ public class Tests {
 	}
 
 	@Test
-	public void invalidActionUrl_handleRequest_returnNull() {
-		input.getRequestParameters().put("", "");
+	public void invalidExampleUrl_handleRequest_returnNull() {
+		input.setExampleUrl(null);
 		assertNull(handler.handleRequest(input, context));
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void nullRequest_handleRequest_throwsException() {
 		handler.handleRequest(null, context);
+	}
+
+	@Test
+	public void complexValidRequest_handleRequest_returnValidResult() {
+		input.setExampleUrl("https://graphical.weather.gov/xml/docs/SOAP_Requests/CornerPoints.xml");
+		input.setResponseTagName("listLatLonOut");
+		input.setEncodedResponseTagName("latLonList");
+		assertNotNull(handler.handleRequest(input, context));
 	}
 
 }

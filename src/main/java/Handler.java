@@ -16,7 +16,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.Map;
 import java.util.Objects;
 
 public class Handler implements RequestHandler<Request, String> {
@@ -61,26 +60,20 @@ public class Handler implements RequestHandler<Request, String> {
 		if (logger == null) {
 			logger = context.getLogger();
 		}
-		Document request = getRequest(input.getExampleUrl(), input.getRequestParameters());
+		Document request = getRequest(input.getExampleUrl());
 		if (request != null) {
-			Document response = getResponse(
-					request.toString().getBytes(),
-					input.getEndpointUrl(),
-					input.getHost(),
-					input.getCharsetName(),
-					Objects.toString(input.getUserAgent(), defaultUserAgent));
+			Document response = getResponse(request.toString().getBytes(), input);
 			if (response != null) {
 				String result = response.selectFirst(input.getResponseTagName()).text();
 				if (input.getEncodedResponseTagName() != null) {
-					result = Jsoup.parse(result).selectFirst(input.getEncodedResponseTagName()).text();
+					return Jsoup.parse(result).selectFirst(input.getEncodedResponseTagName()).text();
 				}
-				return result;
 			}
 		}
 		return null;
 	}
 
-	private Document getRequest(String requestExampleUrl, Map<String, String> requestParameters) {
+	private Document getRequest(String requestExampleUrl) {
 		try {
 			File file = File.createTempFile(tempFilePrefix, tempFileSuffix);
 			file.deleteOnExit();
@@ -89,12 +82,15 @@ public class Handler implements RequestHandler<Request, String> {
 			fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 			Document document = Parser.xmlParser().parseInput(new String(Files.readAllBytes(file.toPath())), "");
 			document.outputSettings().prettyPrint(false);
-			requestParameters.forEach((k, v) -> document.selectFirst(k).text(v));
 			return document;
 		} catch (Exception e) {
 			logger.log(String.format(requestExceptionMsg, requestExampleUrl));
 			return null;
 		}
+	}
+
+	private Document getResponse(byte[] bytes, Request r) {
+		return getResponse(bytes, r.getEndpointUrl(), r.getHost(), r.getCharsetName(), r.getUserAgent());
 	}
 
 	private Document getResponse(byte[] bytes, String endpoint, String host, String charsetName, String agent) {
@@ -104,7 +100,7 @@ public class Handler implements RequestHandler<Request, String> {
 			conn.setRequestProperty(contentTypeKey, contentTypeVal + charsetName);
 			conn.setRequestProperty(contentLengthKey, String.valueOf(bytes.length));
 			conn.setRequestProperty(hostKey, host);
-			conn.setRequestProperty(userAgentKey, agent);
+			conn.setRequestProperty(userAgentKey, Objects.toString(agent, defaultUserAgent));
 			conn.setRequestMethod(requestMethod);
 			conn.setDoOutput(doOutput);
 
