@@ -9,7 +9,7 @@ Complex requests can be made by specifying a public URL to locate an example req
 
 Primitive responses are interpreted as String values and checks for encoding.
 
-Complex responses can be interpreted and marshalled into objects through extension [(over modification.)][open-closed]
+Complex responses can be interpreted and marshalled into objects through extension [over modification.][open-closed]
 
   [open-closed]: https://en.wikipedia.org/wiki/Open–closed_principle
   [aws-lambda]: https://aws.amazon.com/lambda/
