@@ -51,6 +51,7 @@
             <groupId>com.github.connorvanelswyk</groupId>
             <artifactId>MockLambda</artifactId>
             <version>35e</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
