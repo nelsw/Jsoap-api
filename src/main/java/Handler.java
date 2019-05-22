@@ -1,6 +1,9 @@
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
@@ -18,25 +21,26 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Objects;
 
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class Handler implements RequestHandler<Request, String> {
 
+	String defaultUserAgent,
+			tempFilePrefix,
+			tempFileSuffix,
+			requestExceptionMsg,
+			responseExceptionMsg,
+			requestMethod,
+			encodingKey,
+			encodingVal,
+			contentTypeKey,
+			contentTypeVal,
+			contentLengthKey,
+			hostKey,
+			userAgentKey;
 
-	private final String defaultUserAgent;
-	private final String tempFilePrefix;
-	private final String tempFileSuffix;
-	private final String requestExceptionMsg;
-	private final String responseExceptionMsg;
-	private final String requestMethod;
-	private final String encodingKey;
-	private final String encodingVal;
-	private final String contentTypeKey;
-	private final String contentTypeVal;
-	private final String contentLengthKey;
-	private final String hostKey;
-	private final String userAgentKey;
-	private final Boolean doOutput;
+	Boolean doOutput;
 
-	private LambdaLogger logger;
+	@NonFinal LambdaLogger logger;
 
 	public Handler() {
 		defaultUserAgent = "Apache-HttpClient/4.1.1 (java 1.8)";
