@@ -20,4 +20,4 @@ matrix:
     - jdk: openjdk8
       env:
          - DESC="build with OpenJDK8"
-         - CMD="mvn -e package -Passembly && mvn -e site -Dlinkcheck.skip=true"
+         - CMD="mvn clean install"
