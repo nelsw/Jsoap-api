@@ -10,10 +10,11 @@ AWS Lambda (serverless) [Jsoap][jsoap] API implementation.
 ### Sending a Request
 
 ### Returning a String
-The most minimal request possible requires only two (2) parameters: *wsdl*, and *xml*. 
+A request without result mapping returns the returns the first (likely only) text node value. 
 ```cmd
 curl \
 -d '{
+  "encoding": "ISO-8859-1", \
   "wsdl": "https://graphical.weather.gov/xml/SOAP_server/ndfdXMLserver.php",
   "body": "https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml",
 }' \
@@ -26,6 +27,7 @@ More complex requests can be defined with parameters and a nested result schema
 ```cmd
 curl \
 -d '{
+  "encoding": "ISO-8859-1", \
   "wsdl": "https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php",
   "body": "https://graphical.weather.gov/xml/docs/SOAP_Requests/GmlLatLonList.xml",  
   "params": {

@@ -11,8 +11,9 @@ build: compile
     	--method POST \
     	--stage LATEST \
     	--body '{ \
+    	"encoding": "ISO-8859-1", \
     	"wsdl": "https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php", \
-    	"xml": "https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml" \
+    	"body": "https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml" \
     	}' \
     	| sam local invoke jsoap
 
