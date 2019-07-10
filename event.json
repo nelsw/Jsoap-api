@@ -1,0 +1,4 @@
+{
+  "wsdl": "https://graphical.weather.gov:443/xml/SOAP_server/ndfdXMLserver.php",
+  "xml": "https://graphical.weather.gov/xml/docs/SOAP_Requests/LatLonListZipCode.xml"
+}
