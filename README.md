@@ -7,8 +7,6 @@ AWS Lambda (serverless) [Jsoap][jsoap] API implementation.
 
 ## Usage
 
-### Sending a Request
-
 ### Returning a String
 A request without result mapping returns the returns the first (likely only) text node value. 
 ```cmd
