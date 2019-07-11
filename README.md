@@ -8,7 +8,7 @@ AWS Lambda (serverless) [Jsoap][jsoap] API implementation.
 ## Usage
 
 ### Returning a String
-A request without result mapping returns the returns the first (likely only) text node value. 
+A request without result mapping returns the first (likely only) text node value. 
 ```cmd
 curl \
 -d '{
@@ -20,8 +20,8 @@ curl \
 https://dbc99ix1f1.execute-api.us-east-1.amazonaws.com/dev/jsoap
 ```
 
-### Returning a Object
-More complex requests can be defined with parameters and a nested result schema
+### Returning an Object
+More complex requests can be defined with parameters and a nested result schema.
 ```cmd
 curl \
 -d '{
@@ -46,7 +46,7 @@ curl \
 https://dbc99ix1f1.execute-api.us-east-1.amazonaws.com/dev/jsoap
 ```
 
-*note - aforementioned code snippets are dependent on the [weather.gov][wg] public SOAP web service*
+*note - code snippets are dependent on the [weather.gov][wg] public SOAP web service*
 
 [jsoap]: https://github.com/connorvanelswyk/jsoap
 [wg]: https://www.weather.gov
