@@ -50,10 +50,10 @@ https://dbc99ix1f1.execute-api.us-east-1.amazonaws.com/dev/jsoap
 
 [jsoap]: https://github.com/connorvanelswyk/jsoap
 [wg]: https://www.weather.gov
-[ci-img]: https://api.travis-ci.com/connorvanelswyk/Jsoap-api.svg?branch=master
-[ci]: https://travis-ci.com/connorvanelswyk/Jsoap-api
-[coveralls-img]: https://coveralls.io/repos/github/connorvanelswyk/Jsoap-api/badge.svg?branch=master
-[coveralls]: https://coveralls.io/github/connorvanelswyk/Jsoap-api?branch=master   
+[ci-img]: https://api.travis-ci.com/nelsw/Jsoap-api.svg?branch=master
+[ci]: https://travis-ci.com/nelsw/Jsoap-api
+[coveralls-img]: https://coveralls.io/repos/github/nelsw/Jsoap-api/badge.svg?branch=master
+[coveralls]: https://coveralls.io/github/nelsw/Jsoap-api?branch=master   
 [open-closed]: https://en.wikipedia.org/wiki/Open–closed_principle
 [aws-lambda]: https://aws.amazon.com/lambda/
 [rest]: https://en.wikipedia.org/wiki/Representational_state_transfer
